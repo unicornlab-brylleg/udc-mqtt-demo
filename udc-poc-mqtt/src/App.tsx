@@ -6,33 +6,43 @@ import Admin from './Pages/admin/admin';
 import Home from './Pages/Home/Home';
 import * as mqtt from 'mqtt';
 import { MqttClientContext } from './Contexts/mqttClientContext';
+import { mqttConnectionHandler } from './Utils/MQTT';
+import { socketClusterConnectionHandler } from './Utils/socketCluster';
+import { socketClientsContext } from './Contexts/SocketClientsContext';
+
+
 function App() {
   const [client, setClient] = useState<mqtt.Client>();
+  const [socketClients, setsocketClients] = useState<any>({
+    socketCluster: null,
+  });
+
   const mqttClientValue = useMemo(
     () => ({ client, setClient }),
     [client, setClient]
   );
+  const socketsClientValue = useMemo(
+    () => ({ socketClients, setsocketClients }),
+    [socketClients, setsocketClients]
+  );
 
   useEffect(() => {
-    console.log('client');
-    var client = mqtt.connect("mqtt://20.124.99.194:9001")
-    client.on("connect", function () {
-      console.log("Connected")
-      setClient(client)
-      client.publish("topic", "hello from admin")
-    })
+    mqttConnectionHandler(setClient)
+    socketClusterConnectionHandler(setsocketClients, socketClients)
   }, []
   )
   return (
-    <MqttClientContext.Provider value={mqttClientValue}>
-      <Router>
-        <Routes>
-          <Route path="/enduser" element={<Enduser />} />
-          <Route path="/Admin" element={<Admin />} />
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </Router>
-    </MqttClientContext.Provider>
+    <socketClientsContext.Provider value={socketsClientValue}>
+      <MqttClientContext.Provider value={mqttClientValue}>
+        <Router>
+          <Routes>
+            <Route path="/enduser" element={<Enduser />} />
+            <Route path="/Admin" element={<Admin />} />
+            <Route path="/" element={<Home />} />
+          </Routes>
+        </Router>
+      </MqttClientContext.Provider>
+    </socketClientsContext.Provider>
 
   );
 }

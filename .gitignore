@@ -1,2 +1,6 @@
 udc-mqtt-broker/node_modules
 udc-poc-mqtt/node_modules
+udc-socket-cluster-server/node_modules
+socketClusterServer/udc-socket/node_modules
+udc-socket-controller/node_modules
+udc-services-controller/node_modules
