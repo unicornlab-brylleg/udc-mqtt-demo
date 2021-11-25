@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socketcluster
+spec:
+  selector:
+    matchLabels:
+      app: socketcluster
+  template:
+    metadata:
+      labels:
+        app: socketcluster
+    spec:
+      containers:
+      - name: socketcluster
+        image: karimcx.azurecr.io/socketcluster:latest
+        ports:
+        - containerPort: 9002
+      imagePullSecrets:
+        - name: socketcluster
+        

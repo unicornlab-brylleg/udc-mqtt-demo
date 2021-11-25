@@ -13,7 +13,7 @@ export default function Enduser() {
         //sub()
         //console.log(socketClients)
         let socketClient = socketClients.AGClientSocket as AGClientSocket;
-        let clientnew = new SCClient('localhost', 9002, 'testClient');
+        let clientnew = new SCClient('localhost', 56948, 'testClient');
         setnewSocketClient(clientnew)
         client?.subscribe('UDC-013')
         client?.on('message', (topic: string, message: string) => {
