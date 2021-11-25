@@ -17,5 +17,5 @@ spec:
         ports:
         - containerPort: 9002
       imagePullSecrets:
-        - name: socketcluster
+        - name: azurecrcreds
         
