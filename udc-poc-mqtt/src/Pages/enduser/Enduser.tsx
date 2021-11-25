@@ -35,12 +35,6 @@ export default function Enduser() {
     }
 
     function test() {
-        sub()
-        // let socketClient = socketClients.socketCluster as AGClientSocket;
-        // // console.log(socketClient)
-        // socketClient?.transmitPublish('foo', 'bar');
-        // socketClient?.send('foo');
-        // socketClient?.invoke('boradcast', 'bar');
         newSocketClient?.socket.transmitPublish('dog', 'bar');
     }
 

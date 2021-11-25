@@ -9,6 +9,8 @@ export class SCClient {
   socket;
   client_name;
   constructor(host: any, port: any, client_name: any) {
+    console.log("creating socket");
+    console.log(host);
     this.socket = sc_client.create({ hostname: host, port: port });
     this.client_name = client_name;
     this.createListeners();
