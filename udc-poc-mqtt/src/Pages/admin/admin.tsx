@@ -18,19 +18,19 @@ export default function Admin() {
     function hitGavel() {
         client.publish('UDC-013', 'Admin hit Gavel');
     }
-
-    switch (sessionState) {
-        case SessionStates.Pending: return (
-            <>
-                <TopBar sessionName="UDC" />
-                <OnGoing />
-            </>
-        )
-        default: return (
-            <>
-                <TopBar sessionName="UDC" />
-                <OnGoing />
-            </>
-        )
-    }
+    return (<>"hi"</>)
+    // switch (sessionState) {
+    //     case SessionStates.Pending: return (
+    //         <>
+    //             <TopBar sessionName="UDC" />
+    //             <OnGoing />
+    //         </>
+    //     )
+    //     default: return (
+    //         <>
+    //             <TopBar sessionName="UDC" />
+    //             <OnGoing />
+    //         </>
+    //     )
+    // }
 }

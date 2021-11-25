@@ -3,9 +3,18 @@ import React, { useState } from 'react'
 import "../../../global.css"
 import { MqttClientContext } from '../../../Contexts/mqttClientContext';
 import { SessionStates } from '../../../Models/SessionStates';
+import { Button } from '@chakra-ui/button';
 
 
-export default function OnGoing() {
+interface onGoingViewProps {
+    toggleMuteAll?: Function
+    toggleKickAll?: Function
+    triggerGavel?: Function
+    putSessionOnHold: Function
+    endCurrentSession: Function
+}
+
+export default function OnGoing({ putSessionOnHold, toggleMuteAll, toggleKickAll, triggerGavel, endCurrentSession }: onGoingViewProps) {
     const { client } = React.useContext(MqttClientContext);
     function muteAll() {
         client.publish('UDC-013', 'Admin Muted All');
@@ -17,10 +26,11 @@ export default function OnGoing() {
         client.publish('UDC-013', 'Admin hit Gavel');
     }
     return (
-        <Flex flexDirection="column" justifyContent="center" alignItems="center" mt="3rem" gap="3rem">
-            <Heading as="h1">Welcome admin,</Heading>
-            <p>connection status: {client ? "connected" : "not connected"} to session: UDC-013</p>
-            <p>session state: Ongoing</p>
+        <Flex flexDirection="column" justifyContent="space-evenly" minHeight="80vh" alignItems="center" gap="3rem">
+            <Flex flexDirection="column" justifyContent="center" alignItems="center">
+                <Heading as="h1">Welcome admin,</Heading>
+                <p>connection status: {client ? "connected" : "not connected"} to session: UDC-013</p>
+                <p>session state: Ongoing</p></Flex>
             <Flex flexDirection="row" width="100%" justifyContent="space-evenly" mt="2rem">
                 <Flex flexDirection="column" justifyContent="center" alignItems="center" onClick={muteAll}>
                     <Box className="hoverable" width="3rem" height="3rem" boxShadow="lg" borderRadius="1rem" display="flex" flexDirection="column" justifyContent="center" alignItems="center" gap="2rem">
@@ -47,6 +57,14 @@ export default function OnGoing() {
                     </Box>
                     <p style={{ marginTop: "1rem" }}>Gavel</p>
                 </Flex>
+            </Flex>
+            <Flex flexDirection="row" justifyContent="center" style={{ gap: "2rem" }}>
+                <Button colorScheme="yellow" onClick={() => { putSessionOnHold() }}>
+                    Hold Session
+                </Button>
+                <Button colorScheme="red" onClick={() => { endCurrentSession() }}>
+                    End Session
+                </Button>
             </Flex>
 
         </Flex>
