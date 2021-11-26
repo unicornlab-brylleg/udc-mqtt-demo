@@ -43,13 +43,14 @@ export default function SessionsGallery() {
         }
     ]
     return (
-        <div className="triangularBackdrop"><Flex height="80vh" width="100%" flexDirection="column" alignItems="center" justifyContent="space-evenly">
+        <div className="triangularBackdrop"><Flex height="80vh" width="100%" flexDirection="column" alignItems="center" justifyContent="space-between">
             <Heading as="h1" size="2xl">Ongoing Sessions</Heading>
             <SimpleGrid columns={{ sm: 2, md: 4, lg: 5, "2xl": 6 }} spacing={10}>
                 {dummySessions.map((session, index) => (
                     <div onClick={() => nav(`/session/${session.sessionId}`)}><SessionCards key={index} sessionName={session.sessionName} sessionId={session.sessionId} /></div>
                 ))}
             </SimpleGrid>
+            <div></div>
         </Flex></div>
     )
 }

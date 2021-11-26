@@ -4,11 +4,11 @@ import "../../../global.css"
 import { MqttClientContext } from '../../../Contexts/mqttClientContext';
 import { SessionStates } from '../../../Models/SessionStates';
 import TopBar from '../../../Components/SessionTopBar/TopBar';
-import OnGoing from '../../admin/States/onGoing';
-import Pending from '../../admin/States/Pending';
+import OnGoing from './States/onGoing';
+import Pending from './States/Pending';
 import { useNavigate } from 'react-router';
-import OnHold from '../../admin/States/onHold';
-import Ended from '../../admin/States/Ended';
+import OnHold from './States/onHold';
+import Ended from './States/Ended';
 export default function AdminView() {
     const { client } = React.useContext(MqttClientContext);
     const [sessionState, setSessionState] = useState(SessionStates.Pending);

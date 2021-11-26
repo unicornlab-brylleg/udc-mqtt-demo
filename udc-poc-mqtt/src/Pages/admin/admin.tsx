@@ -4,7 +4,7 @@ import "../../global.css"
 import { MqttClientContext } from '../../Contexts/mqttClientContext';
 import { SessionStates } from '../../Models/SessionStates';
 import TopBar from '../../Components/SessionTopBar/TopBar';
-import OnGoing from './States/onGoing';
+import OnGoing from '../Session/AdminView/States/onGoing';
 export default function Admin() {
     // const { mqttClient } = useMqttState();
     const { client } = React.useContext(MqttClientContext);

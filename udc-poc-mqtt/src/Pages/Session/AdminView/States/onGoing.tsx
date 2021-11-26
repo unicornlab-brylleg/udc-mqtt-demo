@@ -1,8 +1,8 @@
 import { Flex, Heading, Box } from '@chakra-ui/layout'
 import React, { useState } from 'react'
-import "../../../global.css"
-import { MqttClientContext } from '../../../Contexts/mqttClientContext';
-import { SessionStates } from '../../../Models/SessionStates';
+import "../../../../global.css"
+import { MqttClientContext } from '../../../../Contexts/mqttClientContext';
+import { SessionStates } from '../../../../Models/SessionStates';
 import { Button } from '@chakra-ui/button';
 
 

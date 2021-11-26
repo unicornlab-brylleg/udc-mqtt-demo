@@ -49,29 +49,31 @@ function App() {
   }, []
   )
   return (
-    <div className="view"><AuthCtx.Provider value={authValue}>
-      <socketClientsContext.Provider value={socketsClientValue}>
-        <MqttClientContext.Provider value={mqttClientValue}>
-          {user ?
-            <Router>
-              <Routes>
-                <Route path="/enduser" element={<Enduser />} />
-                <Route path="/Admin" element={<Admin />} />
-                <Route path="/Sessions" element={<Sessions />} />
-                <Route path="/Session/:id" element={<Session />} />
-                <Route path="/Login" element={<Login />} />
-                <Route path="/" element={<Home />} />
-              </Routes>
-            </Router> :
-            <Router>
-              <Routes>
-                <Route path="*" element={<Login />} />
-              </Routes>
-            </Router>
-          }
-        </MqttClientContext.Provider>
-      </socketClientsContext.Provider>
-    </AuthCtx.Provider></div>
+    <div className="view">
+      <AuthCtx.Provider value={authValue}>
+        <socketClientsContext.Provider value={socketsClientValue}>
+          <MqttClientContext.Provider value={mqttClientValue}>
+            {user ?
+              <Router>
+                <Routes>
+                  <Route path="/enduser" element={<Enduser />} />
+                  <Route path="/Admin" element={<Admin />} />
+                  <Route path="/Sessions" element={<Sessions />} />
+                  <Route path="/Session/:id" element={<Session />} />
+                  <Route path="/Login" element={<Login />} />
+                  <Route path="/" element={<Home />} />
+                </Routes>
+              </Router> :
+              <Router>
+                <Routes>
+                  <Route path="*" element={<Login />} />
+                </Routes>
+              </Router>
+            }
+          </MqttClientContext.Provider>
+        </socketClientsContext.Provider>
+      </AuthCtx.Provider>
+    </div>
   );
 
 }
