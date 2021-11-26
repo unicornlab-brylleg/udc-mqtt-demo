@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Box, Flex, Heading } from '@chakra-ui/layout'
 import {
     FormControl,
@@ -11,6 +11,7 @@ import useLogin from '../../Hooks/Auth/LoginHook'
 import useSocketClient from '../../Hooks/SocketClient/useSocketClient'
 import { useNavigate } from 'react-router'
 import '../../global.css'
+import { socketClientsContext } from '../../Contexts/SocketClientsContext'
 
 
 export default function Login() {
@@ -20,6 +21,7 @@ export default function Login() {
     const [isCopied, handleCopy] = useDemo()
     const [user, handleLogin] = useLogin()
     const [connectionEstablished, handleCreateSocketClient] = useSocketClient()
+    const { setSocketClient } = useContext(socketClientsContext)
     const toast = useToast()
 
 
@@ -28,6 +30,7 @@ export default function Login() {
         console.log(email, password)
         const loginResponse = handleLogin(email, password)
         const socketResponse = handleCreateSocketClient(email, password)
+        setSocketClient(socketResponse)
         if (loginResponse && socketResponse) {
             navigate("/Sessions")
         } else {

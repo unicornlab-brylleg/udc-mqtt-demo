@@ -10,7 +10,7 @@ const useSocketClient = () => {
         console.log("socketClient", socketClient)
         setSocketClient(socketClient)
         setConnectionEstablished(true)
-        return true
+        return socketClient
     }, [])
     return [connectionEstablished, handleCreateSocketClient]
 }

@@ -15,13 +15,12 @@ import { AuthCtx } from "./Contexts/authContext"
 import Session from './Pages/Session/Session';
 import { useNavigate } from 'react-router';
 import './global.css'
+import { SCClient } from './Models/socketClusterClient'
 
 
 function App() {
   const [client, setClient] = useState<mqtt.Client>();
-  const [socketClient, setSocketClient] = useState<any>({
-    socketCluster: null,
-  });
+  const [socketClient, setSocketClient] = useState<SCClient>();
   const [user, setUser] = useState<any>()
 
   const mqttClientValue = useMemo(

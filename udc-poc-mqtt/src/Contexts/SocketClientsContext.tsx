@@ -1,2 +1,3 @@
 import { createContext } from "react";
-export const socketClientsContext = createContext<any>(null)
+import { SCClient } from "../Models/socketClusterClient";
+export const socketClientsContext = createContext<any>(undefined)

@@ -16,6 +16,10 @@ import {
 import { PhoneIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
 import './sessionDrawer.css'
 import SessionEvents from './SessionEvents';
+import { socketClientsContext } from '../../Contexts/SocketClientsContext';
+import useSocketClient from '../../Hooks/SocketClient/useSocketClient';
+import { SCClient } from '../../Models/socketClusterClient';
+import { AGClientSocket } from 'socketcluster-client';
 export default function SessionDrawer() {
     enum DrawerViews {
         SessionLogs,
@@ -26,18 +30,40 @@ export default function SessionDrawer() {
     const [sessionLogs, setSessionLogs] = React.useState<string[]>([])
     const { isOpen, onOpen, onClose } = useDisclosure()
     const btnRef = React.useRef()
+    const { socketClient } = React.useContext(socketClientsContext)
+    React.useEffect(() => {
+        console.log(typeof socketClient)
+        console.log("socketClienthehe")
+        if (socketClient) {
+            console.log("socketClient is still connected")
+            let socket = socketClient.socket as AGClientSocket
+            socket.transmitPublish("UDC-013", "hi")
+        }
+    }, [])
+    function t() {
+        console.log(typeof socketClient)
+        console.log("socketClienthehe")
+        if (socketClient) {
+            console.log("socketClient is still connected")
+            let socket = socketClient.socket as AGClientSocket
+            socket.transmitPublish("UDC-013", "hi")
+        }
+    }
     return (
         <>
             <i className="bi bi-list" onClick={onOpen} style={{ fontSize: "1.5rem", color: "#bee3f8" }}></i>
             <Drawer
                 isOpen={isOpen}
                 placement="right"
-                onClose={onClose}
+                onClose={() => {
+                    onClose()
+                }}
             >
                 <DrawerOverlay />
                 <DrawerContent bg="gray.700" color="gray.500">
                     <DrawerCloseButton />
                     <DrawerHeader>Unicorn Digital Courtroom</DrawerHeader>
+                    <button onClick={t}>hehe</button>
 
                     <DrawerBody>
                         <Center>
