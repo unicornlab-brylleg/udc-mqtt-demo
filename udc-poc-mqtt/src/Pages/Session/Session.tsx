@@ -35,25 +35,13 @@ export default function Session() {
             });
         }
     }, [sessionLogs]);
+
     return (
-        <div>
+        <Flex flexDirection="column" width="100%">
             <TopBar sessionName="UDC" />
-            <Flex flexDirection="row" height="80%">
-                <div style={{ width: "85%" }}>
-                    {user?.type === UserTypes.ADMIN ? <AdminView /> : null}
-                    {user?.type === UserTypes.USER ? <EndUser /> : null}
-                </div>
-                <Flex flexDirection="column" flexGrow={1} width="20%" height="58rem" bg="gray.700" alignItems="center" color="gray.500" p="1rem 0">
-                    <span>
-                        session events
-                    </span>
-                    {
-                        sessionLogs.map((log, index) => {
-                            return <span key={index}>{log}</span>
-                        })
-                    }
-                </Flex>
-            </Flex>
-        </div>
+            {user?.type === UserTypes.ADMIN ? <AdminView /> : null}
+            {user?.type === UserTypes.USER ? <EndUser /> : null}
+
+        </Flex>
     );
 }
