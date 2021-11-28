@@ -1,4 +1,5 @@
 import * as sc_client from "socketcluster-client";
+import { v4 as uuid } from "uuid";
 // const sc_client = require("socketcluster-client");
 
 /**
@@ -8,10 +9,33 @@ import * as sc_client from "socketcluster-client";
 export class SCClient {
   socket;
   client_name;
-  constructor(host: any, port: any, client_name: any) {
-    this.socket = sc_client.create({ hostname: host, port: port });
+  userName: string;
+  authToken: string;
+
+  constructor(
+    host: any = "localhost",
+    port: any = "9002",
+    client_name: any = uuid()
+  ) {
+    console.log("creating socket");
+    console.log(host);
+    this.socket = sc_client.create({
+      hostname: process.env.REACT_APP_SOCKET_HOST,
+      port: parseInt(process.env.REACT_APP_SOCKET_HOST_PORT ?? "9002"),
+    });
     this.client_name = client_name;
     this.createListeners();
+    let uid = uuid();
+    this.userName = uid;
+    this.authToken = uuid();
+    this.socket.subscribe(uid);
+  }
+  async handleDirectAdminActions(announcer: Function) {
+    for await (let data of this.socket.channel(this.userName)) {
+      console.log("userMuted/kkkkkkkkkk");
+      console.log(data);
+      announcer();
+    }
   }
 
   createListeners() {
@@ -37,6 +61,7 @@ export class SCClient {
   async connectListener() {
     for await (let event of this.socket.listener("connect")) {
       console.log("Socket is connected");
+      console.log(event);
       try {
         await Promise.all([
           this.socket.invoke("login", {
@@ -60,6 +85,14 @@ export class SCClient {
     }
   }
 
+  async adminMqttTransmitter(room: string, data: Object) {
+    this.socket.transmit("ADMIN_ACTION", {
+      payload: data,
+      room: room,
+      adminAction: true,
+    });
+  }
+
   /**
    * creates a listener on an sc server's channel
    * @param channel
@@ -78,5 +111,70 @@ export class SCClient {
     } catch (e) {
       console.error(e);
     }
+  }
+  async handleChatMessage(topic: string, prev: String[], setter: Function) {
+    if (!this.socket.channel(topic).isSubscribed()) {
+      this.sub(topic);
+      let channel = this.socket.channel(topic);
+      for await (let message of channel) {
+        console.log(message);
+        let jason = JSON.parse(message.raw_data);
+        if (jason.type === "chat") {
+          console.log("chat message");
+          console.log(jason);
+          let old = prev;
+          old.push(jason.message);
+          setter(old);
+        } else {
+          console.log("not chat");
+        }
+      }
+    } else {
+      let channel = this.socket.channel(topic);
+      for await (let message of channel) {
+        console.log(message);
+        let jason = JSON.parse(message.raw_data);
+        if (jason.type === "chat") {
+          console.log("chat message");
+          console.log(jason);
+          let old = prev;
+          old.push(jason.message);
+          setter(old);
+        } else {
+          console.log("not chat");
+        }
+      }
+    }
+  }
+  async sub(topic: string) {
+    let payload = {
+      user: this.userName,
+      type: "ping",
+    };
+    this.socket.subscribe(topic);
+    this.socket.transmitPublish(topic, JSON.stringify(payload));
+  }
+  async channelJoinListener(topic: string, appender: Function) {
+    let channel = this.socket.channel(topic);
+    if (!channel.isSubscribed()) {
+      this.sub(topic);
+    }
+    for await (let message of channel) {
+      let jason = JSON.parse(message.raw_data);
+      if (jason.type === "ping") {
+        appender(jason.user);
+      } else {
+        console.log("not chat");
+      }
+    }
+  }
+
+  async submitChatMessage(topic: string, message: string) {
+    let payload = {
+      user: this.userName,
+      type: "chat",
+      message: message,
+    };
+    this.socket.transmitPublish(topic, JSON.stringify(payload));
   }
 }

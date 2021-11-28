@@ -1,2 +1,2 @@
 import { createContext } from "react";
-export const socketClientsContext = createContext<any>(null)
+export const socketClientsContext = createContext<any>(undefined)
