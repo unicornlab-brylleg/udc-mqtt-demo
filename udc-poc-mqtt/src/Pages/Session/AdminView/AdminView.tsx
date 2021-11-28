@@ -10,73 +10,85 @@ import { useNavigate } from 'react-router';
 import OnHold from './States/onHold';
 import Ended from './States/Ended';
 import { AdminMqttActions } from '../../../Models/AdminActions';
+import { socketClientsContext } from '../../../Contexts/SocketClientsContext';
+import { SCClient } from '../../../Models/socketClusterClient';
+import { useLocation } from 'react-router';
+import { SessionContext, SessionContextClass } from '../../../Contexts/SessionContext';
+import { MqttHandler } from '../../../Models/mqttHandler';
 export default function AdminView() {
+    const location = useLocation();
     const { client } = React.useContext(MqttClientContext);
+    const { sessionHandlers, setSessionHandlers } = React.useContext(SessionContext);
     const [sessionState, setSessionState] = useState(SessionStates.Pending);
+    const [socketClient, setSocketClient] = useState<SCClient>(sessionHandlers.socketClient);
+    const [mqttHandler, setMqttHandler] = useState<MqttHandler>(sessionHandlers.mqttHandler);
     const nav = useNavigate();
+    let sessionId = location.pathname.split('/')[2];
 
     function muteAll() {
-        client?.publish('UDC-013', JSON.stringify({
+        socketClient?.adminMqttTransmitter(sessionId, {
             AdminAction: AdminMqttActions.MuteEveryone,
             message: 'Admin Muted All'
-        }));
+        })
+
     }
     function unmuteAll() {
-        client?.publish('UDC-013', JSON.stringify({
+        socketClient?.adminMqttTransmitter(sessionId, {
             AdminAction: AdminMqttActions.UnmuteEveryone,
             message: 'Admin Unmuted All'
-        }));
+        })
     }
     function kickAll() {
-        client?.publish('UDC-013', JSON.stringify({
+        socketClient?.adminMqttTransmitter(sessionId, {
             AdminAction: AdminMqttActions.KickEveryone,
             message: 'Admin Kicked All'
-        }));
+        })
     }
 
+
     function hitGavel() {
-        client?.publish('UDC-013', JSON.stringify({
+        socketClient?.adminMqttTransmitter(sessionId, {
             AdminAction: AdminMqttActions.HitGavel,
             message: 'Admin Hit Gavel'
-        }));
+        })
     }
 
     function startSession() {
         setSessionState(SessionStates.Ongoing);
-        client?.publish('UDC-013', JSON.stringify({
+        socketClient?.adminMqttTransmitter(sessionId, {
             AdminAction: AdminMqttActions.MakeSessionOngoing,
             message: 'Admin Started Session'
-        }));
+        })
     }
     function cancelSession() {
         setSessionState(SessionStates.Cancelled);
-        client?.publish('UDC-013', JSON.stringify({
+        socketClient?.adminMqttTransmitter(sessionId, {
             AdminAction: AdminMqttActions.MakeSessionCancelled,
             message: 'Admin Cancelled Session'
-        }));
+        })
         nav('/sessions')
     }
 
     function resumeSession() {
         setSessionState(SessionStates.Ongoing);
-        client?.publish('UDC-013', JSON.stringify({
+        socketClient?.adminMqttTransmitter(sessionId, {
             AdminAction: AdminMqttActions.MakeSessionOngoing,
             message: 'Admin Resumed Session'
-        }));
+        })
     }
     function holdSession() {
         setSessionState(SessionStates.OnHold);
-        client?.publish('UDC-013', JSON.stringify({
+        socketClient?.adminMqttTransmitter(sessionId, {
             AdminAction: AdminMqttActions.MakeSessionOnHold,
-            message: 'Admin put session on hold'
-        }));
+            message: 'Admin Hold Session'
+        })
     }
     function endSession() {
         setSessionState(SessionStates.Ended);
-        client?.publish('UDC-013', JSON.stringify({
+        socketClient?.adminMqttTransmitter(sessionId, {
             AdminAction: AdminMqttActions.MakeSessionEnded,
-            message: 'Admin ended session'
-        }));
+            message: 'Admin Ended Session'
+        })
         client?.publish('UDC-013', 'Admin ended session');
     }
     switch (sessionState) {

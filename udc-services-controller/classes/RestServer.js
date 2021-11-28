@@ -27,12 +27,9 @@ class restServer {
     this.app.use(body_parser.json({ limit: "1gb" }));
     this.app.use(body_parser.urlencoded({ extended: true }));
 
-    this.app.use(function (req, res, next) {
-      console.log("${req.method} ${req.url}");
-    });
-
     //routes all raw http server requests  to our express server
     this.http_server.on("request", (...args) => {
+      console.log("http request", args);
       this.app.apply(null, args);
     });
 
@@ -56,6 +53,7 @@ class restServer {
    * @returns {Promise<this>}
    */
   async channelPostHandler(req, res) {
+    console.log("imtriggered");
     let channel = req.params.channel;
     let data = req.body;
 
@@ -73,6 +71,7 @@ class restServer {
    * @param data
    */
   writeChannelData(channel, data) {
+    console.log("writing data to channel", channel);
     let raw_data = data.raw_data ? data.raw_data : data;
 
     let writer = csv_write_stream({ sendHeaders: false });
@@ -111,6 +110,7 @@ class restServer {
    * @returns {Promise<this>}
    */
   async channelGetAllHandler(req, res) {
+    console.log("getting all channels");
     try {
       let channel = req.params.channel;
 

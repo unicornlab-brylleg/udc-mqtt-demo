@@ -16,7 +16,7 @@ export default function EndUser() {
                 }
             }
         });
-    }, []);
+    }, [sessionState]);
     switch (sessionState) {
         case SessionStates.Pending: return (<div>Pending</div>);
         case SessionStates.Ongoing: return (<div>Ongoing</div>);

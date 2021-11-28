@@ -1,9 +1,7 @@
 import React from 'react'
 import {
-    Button,
     Drawer,
     DrawerBody,
-    DrawerFooter,
     DrawerHeader,
     DrawerOverlay,
     DrawerContent,
@@ -11,16 +9,16 @@ import {
     Flex,
     useDisclosure,
     Center,
-    Switch
 } from '@chakra-ui/react';
-import { PhoneIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
 import './sessionDrawer.css'
 import SessionEvents from './SessionEvents';
-import { socketClientsContext } from '../../Contexts/SocketClientsContext';
-import useSocketClient from '../../Hooks/SocketClient/useSocketClient';
 import { SCClient } from '../../Models/socketClusterClient';
-import { AGClientSocket } from 'socketcluster-client';
+import { useLocation } from 'react-router';
+import SessionChat from './SessionChat';
+import { SessionContext } from '../../Contexts/SessionContext';
+import { MqttHandler } from '../../Models/mqttHandler';
 export default function SessionDrawer() {
+    const loc = useLocation();
     enum DrawerViews {
         SessionLogs,
         SessionParticipants,
@@ -30,24 +28,26 @@ export default function SessionDrawer() {
     const [sessionLogs, setSessionLogs] = React.useState<string[]>([])
     const { isOpen, onOpen, onClose } = useDisclosure()
     const btnRef = React.useRef()
-    const { socketClient } = React.useContext(socketClientsContext)
+    // const { socketClient, setSocketClient } = React.useContext(socketClientsContext)
+    const [sessionMessages, setSessionMessages] = React.useState<string[]>([]);
+    const { sessionHandlers } = React.useContext(SessionContext);
+    const [socketClient, setSocketClient] = React.useState<SCClient>(sessionHandlers.socketClient);
+    const [mqttHandler, setMqttHandler] = React.useState<MqttHandler>(sessionHandlers.mqttClient);
+    let sessionId = loc.pathname.split('/')[2];
     React.useEffect(() => {
-        console.log(typeof socketClient)
-        console.log("socketClienthehe")
-        if (socketClient) {
-            console.log("socketClient is still connected")
-            let socket = socketClient.socket as AGClientSocket
-            socket.transmitPublish("UDC-013", "hi")
-        }
+        mqttHandler?.subToTopic(sessionId)
+        mqttHandler.onTopicPublished(sessionId, appendSessionLog)
     }, [])
-    function t() {
-        console.log(typeof socketClient)
-        console.log("socketClienthehe")
-        if (socketClient) {
-            console.log("socketClient is still connected")
-            let socket = socketClient.socket as AGClientSocket
-            socket.transmitPublish("UDC-013", "hi")
-        }
+    const appendSessionLog = (log: string) => {
+        let old = sessionLogs;
+        let parsedLog = JSON.parse(log);
+        old.push(parsedLog.message)
+        setSessionLogs(old)
+    }
+    const appendChatMessageCallback = (message: string) => {
+        let old = sessionMessages;
+        old.push(message)
+        setSessionMessages(old)
     }
     return (
         <>
@@ -60,11 +60,9 @@ export default function SessionDrawer() {
                 }}
             >
                 <DrawerOverlay />
-                <DrawerContent bg="gray.700" color="gray.500">
+                <DrawerContent bg="gray.700" color="gray.500" height="100%" overflow="hidden">
                     <DrawerCloseButton />
                     <DrawerHeader>Unicorn Digital Courtroom</DrawerHeader>
-                    <button onClick={t}>hehe</button>
-
                     <DrawerBody>
                         <Center>
                             <div className="fakeSwitch">
@@ -88,8 +86,9 @@ export default function SessionDrawer() {
                                 </button>
                             </div>
                         </Center>
-                        <Flex flexDirection="column" flexGrow={1} width="100%" alignItems="center" p="1rem 0">
-                            {innerView === DrawerViews.SessionLogs && <SessionEvents />}
+                        <Flex flexDirection="column" flexGrow={1} width="100%" alignItems="center" p="1rem 0" height="96%" overflow="hidden">
+                            {innerView === DrawerViews.SessionLogs && <SessionEvents logs={sessionLogs} />}
+                            {innerView === DrawerViews.SessionChat && <SessionChat SessionMessages={sessionMessages} setSessionMessages={setSessionMessages} />}
                         </Flex>
                     </DrawerBody>
                 </DrawerContent>

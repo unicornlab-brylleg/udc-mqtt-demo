@@ -1,4 +1,5 @@
 import * as sc_client from "socketcluster-client";
+import { v4 as uuid } from "uuid";
 // const sc_client = require("socketcluster-client");
 
 /**
@@ -8,10 +9,17 @@ import * as sc_client from "socketcluster-client";
 export class SCClient {
   socket;
   client_name;
-  constructor(host: any, port: any, client_name: any) {
+  constructor(
+    host: any = "localhost",
+    port: any = "9002",
+    client_name: any = uuid()
+  ) {
     console.log("creating socket");
     console.log(host);
-    this.socket = sc_client.create({ hostname: host, port: port });
+    this.socket = sc_client.create({
+      hostname: process.env.REACT_APP_SOCKET_HOST,
+      port: parseInt(process.env.REACT_APP_SOCKET_HOST_PORT ?? "9002"),
+    });
     this.client_name = client_name;
     this.createListeners();
   }
@@ -60,6 +68,14 @@ export class SCClient {
       request.end({});
       continue;
     }
+  }
+
+  async adminMqttTransmitter(room: string, data: Object) {
+    this.socket.transmit("ADMIN_ACTION", {
+      payload: data,
+      room: room,
+      adminAction: true,
+    });
   }
 
   /**

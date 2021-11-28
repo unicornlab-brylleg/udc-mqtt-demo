@@ -8,6 +8,9 @@ const sc_server = require("socketcluster-server");
 const csvtojson = require("csvtojson");
 const { promisify } = require("util");
 const p_timeout = promisify(setTimeout);
+const redisClient = require("./redisClient");
+const mqttClient = require("./mqttClient");
+const e = require("express");
 
 const USERS_CSV_PATH = path.resolve(__dirname, "../", "data", "users.csv");
 
@@ -16,14 +19,17 @@ const USERS_CSV_PATH = path.resolve(__dirname, "../", "data", "users.csv");
  * @type {SCServer}
  */
 module.exports = class SCServer {
+  redisClient;
+  mqttHandler;
   constructor(port, server_name) {
+    this.redisClient = new redisClient();
+    this.mqttHandler = new mqttClient();
     //create http & socket cluster server
     this.http_server = http.createServer();
     this.sc_server = sc_server.attach(this.http_server, {});
     this.http_server.listen(port);
     this.port = port;
     this.server_name = server_name;
-
     //Set up listeners & middleware function
     this.createListeners();
     this.sc_server.setMiddleware(
@@ -94,7 +100,6 @@ module.exports = class SCServer {
     for await (let { socket, id, name } of this.sc_server.listener(
       "connection"
     )) {
-      console.log(`socket ${id} connected with name ${name}`);
       console.log(`socket ${id} connected`);
       //listen for when the socket invokes the RPC for login
       this.loginProcedureListener(socket).then(() => {});
@@ -153,17 +158,18 @@ module.exports = class SCServer {
   }
 
   async getChannelDataProcedureListener(socket) {
-    try {
-      console.log("getChannelDataProcedureListener");
-      console.log(Object.keys(socket.server.clients));
-      let t = Object.keys(socket.server.clients);
-      console.log(
-        socket.server.clients[Object.keys(socket.server.clients)[0]].authToken
-          .username
-      );
-    } catch (err) {
-      console.log(err);
-    }
+    // try {
+    //   // console.log(socket.channelSubscriptions);
+    //   // console.log("getChannelDataProcedureListener");
+    //   // console.log(Object.keys(socket.server.clients));
+    //   // let t = Object.keys(socket.server.clients);
+    //   // console.log(
+    //   //   socket.server.clients[Object.keys(socket.server.clients)[0]].authToken
+    //   //     .username
+    //   // );
+    // } catch (err) {
+    //   console.log(err);
+    // }
     for await (let request of socket.procedure("getChannelData")) {
       try {
         let channel = request.data;
@@ -186,10 +192,44 @@ module.exports = class SCServer {
   async inboundMiddlewareHandler(middlewareStream) {
     for await (let action of middlewareStream) {
       //   console.log(action.socket.authToken);
+      // console.log(action.type);
+      // console.log(action.data);
+      // console.log(action.procedure);
+      // console.log(action.procedure == "ADMIN_ACTION");
+
       switch (action.type) {
         case action.SUBSCRIBE:
+          if (action.socket.authState === action.socket.UNAUTHENTICATED) {
+            console.log("unAUTHERR");
+            action.block(new Error("socket not authenticated"));
+            continue;
+          }
+          this.redisClient.addUserToSessionList(
+            action.channel,
+            action.socket.authToken.username
+          );
+          // console.log("SUBSCRIBE");
+          // console.log(action.channel);
+          // console.log(action.socket.authToken);
+          action.allow();
+          break;
         case action.TRANSMIT:
+          if (action.socket.authState === action.socket.UNAUTHENTICATED) {
+            console.log("unAUTHERR");
+            action.block(new Error("socket not authenticated"));
+            continue;
+          }
+          if (action.data.adminAction) {
+            console.log("ADMIN_ACTIONehehhehehes");
+            this.mqttHandler.publishAdminAction(
+              action.data.room,
+              action.data.payload
+            );
+          }
+
+          console.log("TRANSMIT");
         case action.PUBLISH_IN:
+          console.log("TRANSMIT");
           if (action.socket.authState === action.socket.UNAUTHENTICATED) {
             console.log("unAUTHERR");
             action.block(new Error("socket not authenticated"));
@@ -217,7 +257,10 @@ module.exports = class SCServer {
    * @returns {Promise<void>}
    */
   async outboundMiddlewareHandler(middlewareStream) {
+    console.log("outboundMiddlewareHandler");
     for await (let action of middlewareStream) {
+      console.log(action.type);
+      console.log(action.procedure);
       if (action.socket.authState === action.socket.UNAUTHENTICATED) {
         action.block(new Error("socket not authenticated"));
         continue;
