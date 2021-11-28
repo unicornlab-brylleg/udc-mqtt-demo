@@ -10,6 +10,6 @@ export default function EndUser({ sessionState }: endUserProps) {
         case SessionStates.Ongoing: return (<div>Ongoing</div>);
         case SessionStates.OnHold: return (<div>OnHold</div>);
         case SessionStates.Ended: return (<div>Ended</div>);
-        default: return (<div>Cancelled</div>);
+        default: return (<div>Cancelled </div>);
     }
 }
