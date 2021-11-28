@@ -28,6 +28,15 @@ export class SCClient {
     this.userName = uuid();
     this.authToken = uuid();
   }
+  async handleDirectAdminActions(announcer: Function) {
+    this.socket.subscribe(this.userName);
+    if (this.socket.channel(this.userName).isSubscribed()) {
+      for await (let data of this.socket.channel(this.userName)) {
+        console.log(data);
+        announcer();
+      }
+    }
+  }
 
   createListeners() {
     this.errorListener().then();

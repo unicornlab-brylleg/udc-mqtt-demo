@@ -12,6 +12,9 @@ import { MqttHandler } from '../../Models/mqttHandler';
 import { SCClient } from '../../Models/socketClusterClient';
 import { useLocation } from 'react-router';
 import { SessionStates } from '../../Models/SessionStates';
+import { createStandaloneToast } from "@chakra-ui/react"
+
+
 
 export default function Session() {
     const location = useLocation();
@@ -26,6 +29,8 @@ export default function Session() {
         sessionEventLogs: [],
         sessionParticipants: []
     });
+    const toast = createStandaloneToast()
+    // const customToast = createStandaloneToast({ theme: yourCustomTheme })
     React.useEffect(() => {
         if (!user) {
             let fetchedUser = localStorage.getItem('user');
@@ -59,6 +64,16 @@ export default function Session() {
             setSessionDetails({ ...sessionDetails, sessionParticipants: old });
         }
     }, [sessionDetails]);
+    const announceAdminActions = React.useCallback(() => {
+
+        toast({
+            title: "An error occurred.",
+            description: "Unable to create user account.",
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+        })
+    }, [sessionDetails]);
     React.useEffect(() => {
         let sessionId = location.pathname.split('/')[2];
         if (!sessionHandlers) {
@@ -71,6 +86,7 @@ export default function Session() {
         socketClient?.channelJoinListener(sessionId, appendSessionUsers);
         mqttClient?.subToTopic(sessionId)
         mqttClient?.onTopicPublished(sessionId, appendSessionEvents);
+        socketClient?.handleDirectAdminActions(announceAdminActions);
     }, [mqttClient, socketClient]);
 
 

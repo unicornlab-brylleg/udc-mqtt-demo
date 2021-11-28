@@ -1,5 +1,6 @@
 import React from 'react'
 import { Flex, Text, VStack, StackDivider } from '@chakra-ui/layout'
+import SessionParticipant from '../SessionParticipant/SessionParticipant'
 
 interface SessionParticipantsProps {
     participantsList: string[]
@@ -16,7 +17,7 @@ export default function SessionParticipants({ participantsList }: SessionPartici
                 mt="1rem"
             >
                 {participantsList && participantsList.map((user, index) => {
-                    return <p key={index}>{user}</p>
+                    return <SessionParticipant key={index} user={user} />
                 })}
             </VStack>
         </Flex>
