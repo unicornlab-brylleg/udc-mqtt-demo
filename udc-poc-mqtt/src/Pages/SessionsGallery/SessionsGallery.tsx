@@ -1,20 +1,19 @@
 import React from 'react'
-import { Center, Flex, Heading, SimpleGrid } from '@chakra-ui/layout'
+import { Flex, Heading, SimpleGrid } from '@chakra-ui/layout'
 import { SessionCards } from '../../Components/SessionCards/SessionCards'
 import '../../global.css'
-import { createBreakpoints } from "@chakra-ui/theme-tools"
 import { useNavigate } from 'react-router'
 
 // This is the default breakpoint
 export default function SessionsGallery() {
     const nav = useNavigate()
-    const breakpoints = createBreakpoints({
-        sm: "30em",
-        md: "48em",
-        lg: "62em",
-        xl: "80em",
-        "2xl": "96em",
-    })
+    // const breakpoints = createBreakpoints({
+    //     sm: "30em",
+    //     md: "48em",
+    //     lg: "62em",
+    //     xl: "80em",
+    //     "2xl": "96em",
+    // })
 
     const dummySessions = [
         {

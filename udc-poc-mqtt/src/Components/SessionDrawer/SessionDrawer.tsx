@@ -12,43 +12,22 @@ import {
 } from '@chakra-ui/react';
 import './sessionDrawer.css'
 import SessionEvents from './SessionEvents';
-import { SCClient } from '../../Models/socketClusterClient';
-import { useLocation } from 'react-router';
 import SessionChat from './SessionChat';
-import { SessionContext } from '../../Contexts/SessionContext';
-import { MqttHandler } from '../../Models/mqttHandler';
-export default function SessionDrawer() {
-    const loc = useLocation();
+import SessionParticipants from './SessionParticipants';
+
+interface SessionDrawerProps {
+    sessionDetails: any
+}
+
+export default function SessionDrawer({ sessionDetails }: SessionDrawerProps) {
     enum DrawerViews {
         SessionLogs,
         SessionParticipants,
         SessionChat
     }
     const [innerView, setInnerView] = React.useState<DrawerViews>(DrawerViews.SessionLogs)
-    const [sessionLogs, setSessionLogs] = React.useState<string[]>([])
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const btnRef = React.useRef()
-    // const { socketClient, setSocketClient } = React.useContext(socketClientsContext)
     const [sessionMessages, setSessionMessages] = React.useState<string[]>([]);
-    const { sessionHandlers } = React.useContext(SessionContext);
-    const [socketClient, setSocketClient] = React.useState<SCClient>(sessionHandlers.socketClient);
-    const [mqttHandler, setMqttHandler] = React.useState<MqttHandler>(sessionHandlers.mqttClient);
-    let sessionId = loc.pathname.split('/')[2];
-    React.useEffect(() => {
-        mqttHandler?.subToTopic(sessionId)
-        mqttHandler.onTopicPublished(sessionId, appendSessionLog)
-    }, [])
-    const appendSessionLog = (log: string) => {
-        let old = sessionLogs;
-        let parsedLog = JSON.parse(log);
-        old.push(parsedLog.message)
-        setSessionLogs(old)
-    }
-    const appendChatMessageCallback = (message: string) => {
-        let old = sessionMessages;
-        old.push(message)
-        setSessionMessages(old)
-    }
     return (
         <>
             <i className="bi bi-list" onClick={onOpen} style={{ fontSize: "1.5rem", color: "#bee3f8" }}></i>
@@ -56,6 +35,7 @@ export default function SessionDrawer() {
                 isOpen={isOpen}
                 placement="right"
                 onClose={() => {
+                    console.log(sessionMessages)
                     onClose()
                 }}
             >
@@ -63,6 +43,7 @@ export default function SessionDrawer() {
                 <DrawerContent bg="gray.700" color="gray.500" height="100%" overflow="hidden">
                     <DrawerCloseButton />
                     <DrawerHeader>Unicorn Digital Courtroom</DrawerHeader>
+
                     <DrawerBody>
                         <Center>
                             <div className="fakeSwitch">
@@ -87,8 +68,9 @@ export default function SessionDrawer() {
                             </div>
                         </Center>
                         <Flex flexDirection="column" flexGrow={1} width="100%" alignItems="center" p="1rem 0" height="96%" overflow="hidden">
-                            {innerView === DrawerViews.SessionLogs && <SessionEvents logs={sessionLogs} />}
-                            {innerView === DrawerViews.SessionChat && <SessionChat SessionMessages={sessionMessages} setSessionMessages={setSessionMessages} />}
+                            {innerView === DrawerViews.SessionLogs && <SessionEvents logs={sessionDetails.sessionEventLogs} />}
+                            {innerView === DrawerViews.SessionChat && <SessionChat SessionMessages={sessionDetails.sessionChatLogs} setSessionMessages={setSessionMessages} />}
+                            {innerView === DrawerViews.SessionParticipants && <SessionParticipants participantsList={sessionDetails.sessionParticipants} />}
                         </Flex>
                     </DrawerBody>
                 </DrawerContent>

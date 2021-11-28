@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from '@chakra-ui/button'
-import { Flex, Heading, Text } from '@chakra-ui/layout'
+import { Flex, Text } from '@chakra-ui/layout'
 interface onHoldViewProps {
     resumeCurrentSession: Function
 }

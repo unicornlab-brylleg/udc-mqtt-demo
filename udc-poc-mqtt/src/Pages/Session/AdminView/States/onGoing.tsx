@@ -2,7 +2,6 @@ import { Flex, Heading, Box } from '@chakra-ui/layout'
 import React, { useState } from 'react'
 import "../../../../global.css"
 import { MqttClientContext } from '../../../../Contexts/mqttClientContext';
-import { SessionStates } from '../../../../Models/SessionStates';
 import { Button } from '@chakra-ui/button';
 
 
@@ -16,13 +15,12 @@ interface onGoingViewProps {
 }
 
 export default function OnGoing({ putSessionOnHold, triggerGavel, endCurrentSession, muteAll, kickAll, unMuteAll }: onGoingViewProps) {
-    const { client } = React.useContext(MqttClientContext);
     const [muteAllState, setMuteAllState] = useState(false);
     return (
         <Flex flexDirection="column" justifyContent="space-evenly" minHeight="80vh" alignItems="center" gap="3rem">
             <Flex flexDirection="column" justifyContent="center" alignItems="center">
                 <Heading as="h1">Welcome admin,</Heading>
-                <p>connection status: {client ? "connected" : "not connected"} to session: UDC-013</p>
+                <p>connection status: connected to session: UDC-013</p>
                 <p>session state: Ongoing</p></Flex>
             <Flex flexDirection="row" width="100%" justifyContent="space-evenly" mt="2rem">
                 <Flex flexDirection="column" justifyContent="center" alignItems="center" onClick={() => {

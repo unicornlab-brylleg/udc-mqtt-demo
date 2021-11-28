@@ -4,33 +4,16 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Enduser from './Pages/enduser/Enduser';
 import Admin from './Pages/admin/admin';
 import Home from './Pages/Home/Home';
-import * as mqtt from 'mqtt';
-import { MqttClientContext } from './Contexts/mqttClientContext';
-import { mqttConnectionHandler } from './Utils/MQTT';
-import { socketClusterConnectionHandler } from './Utils/socketCluster';
-import { socketClientsContext } from './Contexts/SocketClientsContext';
 import Sessions from './Pages/SessionsGallery/SessionsGallery';
 import Login from './Pages/Login/Login';
 import { AuthCtx } from "./Contexts/authContext"
 import Session from './Pages/Session/Session';
-import { useNavigate } from 'react-router';
 import './global.css'
-import { SCClient } from './Models/socketClusterClient'
 
 
 function App() {
-  const [client, setClient] = useState<mqtt.Client>();
-  const [socketClient, setSocketClient] = useState<SCClient>();
-  const [user, setUser] = useState<any>()
 
-  const mqttClientValue = useMemo(
-    () => ({ client, setClient }),
-    [client, setClient]
-  );
-  const socketsClientValue = useMemo(
-    () => ({ socketClient, setSocketClient }),
-    [socketClient, setSocketClient]
-  );
+  const [user, setUser] = useState<any>()
   const authValue = useMemo(
     () => ({ user, setUser }),
     [user, setUser]
@@ -43,34 +26,30 @@ function App() {
       setUser(JSON.parse(fetchedUser));
     }
     console.log(user)
-    mqttConnectionHandler(setClient)
-    // socketClusterConnectionHandler(setSocketClient, socketClient)
   }, []
   )
   return (
     <div className="view">
       <AuthCtx.Provider value={authValue}>
-        <socketClientsContext.Provider value={socketsClientValue}>
-          <MqttClientContext.Provider value={mqttClientValue}>
-            {user ?
-              <Router>
-                <Routes>
-                  <Route path="/enduser" element={<Enduser />} />
-                  <Route path="/Admin" element={<Admin />} />
-                  <Route path="/Sessions" element={<Sessions />} />
-                  <Route path="/Session/:id" element={<Session />} />
-                  <Route path="/Login" element={<Login />} />
-                  <Route path="/" element={<Home />} />
-                </Routes>
-              </Router> :
-              <Router>
-                <Routes>
-                  <Route path="*" element={<Login />} />
-                </Routes>
-              </Router>
-            }
-          </MqttClientContext.Provider>
-        </socketClientsContext.Provider>
+
+        {user ?
+          <Router>
+            <Routes>
+              <Route path="/enduser" element={<Enduser />} />
+              <Route path="/Admin" element={<Admin />} />
+              <Route path="/Sessions" element={<Sessions />} />
+              <Route path="/Session/:id" element={<Session />} />
+              <Route path="/Login" element={<Login />} />
+              <Route path="/" element={<Home />} />
+            </Routes>
+          </Router> :
+          <Router>
+            <Routes>
+              <Route path="*" element={<Login />} />
+            </Routes>
+          </Router>
+        }
+
       </AuthCtx.Provider>
     </div>
   );

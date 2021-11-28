@@ -1,16 +1,22 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Flex, Text, VStack, StackDivider } from '@chakra-ui/layout'
 import { Button, Textarea } from "@chakra-ui/react"
-
+import { SessionContext } from '../../Contexts/SessionContext'
+import { SCClient } from '../../Models/socketClusterClient'
+import { useLocation } from 'react-router-dom'
 interface sessionChatProps {
     SessionMessages: string[],
     setSessionMessages: Function
 }
 
 export default function SessionChat({ SessionMessages, setSessionMessages }: sessionChatProps) {
+    const loc = useLocation();
     const [message, setMessage] = React.useState("")
+    const { sessionHandlers } = useContext(SessionContext)
+    const socketClient = sessionHandlers.socketClient as SCClient
     const submitMessage = () => {
         if (message.length > 0) {
+            socketClient.submitChatMessage(loc.pathname.split('/')[2], message)
             setSessionMessages([...SessionMessages, message])
             setMessage("")
         }

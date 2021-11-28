@@ -9,6 +9,9 @@ import { v4 as uuid } from "uuid";
 export class SCClient {
   socket;
   client_name;
+  userName: string;
+  authToken: string;
+
   constructor(
     host: any = "localhost",
     port: any = "9002",
@@ -22,6 +25,8 @@ export class SCClient {
     });
     this.client_name = client_name;
     this.createListeners();
+    this.userName = uuid();
+    this.authToken = uuid();
   }
 
   createListeners() {
@@ -47,6 +52,7 @@ export class SCClient {
   async connectListener() {
     for await (let event of this.socket.listener("connect")) {
       console.log("Socket is connected");
+      console.log(event);
       try {
         await Promise.all([
           this.socket.invoke("login", {
@@ -96,5 +102,70 @@ export class SCClient {
     } catch (e) {
       console.error(e);
     }
+  }
+  async handleChatMessage(topic: string, prev: String[], setter: Function) {
+    if (!this.socket.channel(topic).isSubscribed()) {
+      this.sub(topic);
+      let channel = this.socket.channel(topic);
+      for await (let message of channel) {
+        console.log(message);
+        let jason = JSON.parse(message.raw_data);
+        if (jason.type === "chat") {
+          console.log("chat message");
+          console.log(jason);
+          let old = prev;
+          old.push(jason.message);
+          setter(old);
+        } else {
+          console.log("not chat");
+        }
+      }
+    } else {
+      let channel = this.socket.channel(topic);
+      for await (let message of channel) {
+        console.log(message);
+        let jason = JSON.parse(message.raw_data);
+        if (jason.type === "chat") {
+          console.log("chat message");
+          console.log(jason);
+          let old = prev;
+          old.push(jason.message);
+          setter(old);
+        } else {
+          console.log("not chat");
+        }
+      }
+    }
+  }
+  async sub(topic: string) {
+    let payload = {
+      user: this.userName,
+      type: "ping",
+    };
+    this.socket.subscribe(topic);
+    this.socket.transmitPublish(topic, JSON.stringify(payload));
+  }
+  async channelJoinListener(topic: string, appender: Function) {
+    let channel = this.socket.channel(topic);
+    if (!channel.isSubscribed()) {
+      this.sub(topic);
+    }
+    for await (let message of channel) {
+      let jason = JSON.parse(message.raw_data);
+      if (jason.type === "ping") {
+        appender(jason.user);
+      } else {
+        console.log("not chat");
+      }
+    }
+  }
+
+  async submitChatMessage(topic: string, message: string) {
+    let payload = {
+      user: this.userName,
+      type: "chat",
+      message: message,
+    };
+    this.socket.transmitPublish(topic, JSON.stringify(payload));
   }
 }

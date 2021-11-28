@@ -1,27 +1,22 @@
 import React, { useState } from 'react'
-import { Flex, Heading, Box } from '@chakra-ui/layout'
 import "../../../global.css"
 import { MqttClientContext } from '../../../Contexts/mqttClientContext';
 import { SessionStates } from '../../../Models/SessionStates';
-import TopBar from '../../../Components/SessionTopBar/TopBar';
 import OnGoing from './States/onGoing';
 import Pending from './States/Pending';
 import { useNavigate } from 'react-router';
 import OnHold from './States/onHold';
 import Ended from './States/Ended';
 import { AdminMqttActions } from '../../../Models/AdminActions';
-import { socketClientsContext } from '../../../Contexts/SocketClientsContext';
 import { SCClient } from '../../../Models/socketClusterClient';
 import { useLocation } from 'react-router';
-import { SessionContext, SessionContextClass } from '../../../Contexts/SessionContext';
-import { MqttHandler } from '../../../Models/mqttHandler';
-export default function AdminView() {
+import { SessionContext } from '../../../Contexts/SessionContext';
+interface AdminProps {
+    socketClient: SCClient | null;
+}
+export default function AdminView({ socketClient }: AdminProps) {
     const location = useLocation();
-    const { client } = React.useContext(MqttClientContext);
-    const { sessionHandlers, setSessionHandlers } = React.useContext(SessionContext);
     const [sessionState, setSessionState] = useState(SessionStates.Pending);
-    const [socketClient, setSocketClient] = useState<SCClient>(sessionHandlers.socketClient);
-    const [mqttHandler, setMqttHandler] = useState<MqttHandler>(sessionHandlers.mqttHandler);
     const nav = useNavigate();
     let sessionId = location.pathname.split('/')[2];
 
@@ -89,7 +84,7 @@ export default function AdminView() {
             AdminAction: AdminMqttActions.MakeSessionEnded,
             message: 'Admin Ended Session'
         })
-        client?.publish('UDC-013', 'Admin ended session');
+
     }
     switch (sessionState) {
         case SessionStates.Pending: return (<Pending startCurrentSession={startSession} cancelCurrentSession={cancelSession} />)

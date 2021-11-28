@@ -17,10 +17,12 @@ export class MqttHandler {
     this.client.subscribe(topic);
   }
 
-  onTopicPublished(topic: string, callback: (message: string) => void) {
+  onTopicPublished(passedTopic: string, callback: Function) {
     console.log("subscribing to topic");
     this.client.on("message", (topic: string, message: string) => {
-      callback(message.toString());
+      if (topic === passedTopic) {
+        callback(message.toString());
+      }
     });
   }
 }

@@ -1,6 +1,5 @@
 import { Flex, VStack, StackDivider, Text } from '@chakra-ui/layout';
 import React from 'react'
-import { MqttClientContext } from '../../Contexts/mqttClientContext';
 
 interface sessionEventsProps {
     logs: string[]
@@ -17,7 +16,7 @@ export default function SessionEvents({ logs }: sessionEventsProps) {
                 align="stretch"
                 mt="1rem"
             >
-                {logs.map((message, index) => {
+                {logs && logs.map((message, index) => {
                     return <p key={index}>{message}</p>
                 })}
             </VStack>
