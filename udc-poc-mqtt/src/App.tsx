@@ -40,7 +40,7 @@ function App() {
               <Route path="/Sessions" element={<Sessions />} />
               <Route path="/Session/:id" element={<Session />} />
               <Route path="/Login" element={<Login />} />
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Sessions />} />
             </Routes>
           </Router> :
           <Router>
