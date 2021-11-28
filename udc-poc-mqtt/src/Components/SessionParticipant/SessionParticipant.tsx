@@ -12,13 +12,15 @@ export default function SessionParticipant({ user }: SessionParticipantPropTypes
     const { sessionHandlers } = React.useContext(SessionContext)
     const socketClient = sessionHandlers.socketClient as SCClient
     const muteUser = () => {
+        console.log(`muting user ${user}`)
+        socketClient.socket.subscribe(user)
         socketClient.socket.transmitPublish(user, 'mute');
+        socketClient.socket.unsubscribe(user)
     }
     return (
         <Flex flexDirection="row">
             <Text>{user}</Text>
-            <span onClick={muteUser}>M</span>
-            <span>k</span>
+            {socketClient.userName !== user ? <span onClick={muteUser}>M</span> : null}
         </Flex>
 
     )

@@ -25,16 +25,16 @@ export class SCClient {
     });
     this.client_name = client_name;
     this.createListeners();
-    this.userName = uuid();
+    let uid = uuid();
+    this.userName = uid;
     this.authToken = uuid();
+    this.socket.subscribe(uid);
   }
   async handleDirectAdminActions(announcer: Function) {
-    this.socket.subscribe(this.userName);
-    if (this.socket.channel(this.userName).isSubscribed()) {
-      for await (let data of this.socket.channel(this.userName)) {
-        console.log(data);
-        announcer();
-      }
+    for await (let data of this.socket.channel(this.userName)) {
+      console.log("userMuted/kkkkkkkkkk");
+      console.log(data);
+      announcer();
     }
   }
 

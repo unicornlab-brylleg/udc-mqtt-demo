@@ -13,6 +13,7 @@ import { SCClient } from '../../Models/socketClusterClient';
 import { useLocation } from 'react-router';
 import { SessionStates } from '../../Models/SessionStates';
 import { createStandaloneToast } from "@chakra-ui/react"
+import { useToast } from '@chakra-ui/toast';
 
 
 
@@ -29,7 +30,8 @@ export default function Session() {
         sessionEventLogs: [],
         sessionParticipants: []
     });
-    const toast = createStandaloneToast()
+    const toast = useToast();
+
     // const customToast = createStandaloneToast({ theme: yourCustomTheme })
     React.useEffect(() => {
         if (!user) {
@@ -65,13 +67,13 @@ export default function Session() {
         }
     }, [sessionDetails]);
     const announceAdminActions = React.useCallback(() => {
-
         toast({
-            title: "An error occurred.",
-            description: "Unable to create user account.",
-            status: "error",
-            duration: 9000,
-            isClosable: true,
+            position: "bottom-left",
+            render: () => (
+                <Flex color="white" p={3} bg="blue.500" borderRadius="md">
+                    You have been muted admin
+                </Flex>
+            ),
         })
     }, [sessionDetails]);
     React.useEffect(() => {
@@ -84,9 +86,9 @@ export default function Session() {
         }
         socketClient?.handleChatMessage(sessionId, sessionDetails.sessionChatLogs, setChatLogsCallback);
         socketClient?.channelJoinListener(sessionId, appendSessionUsers);
+        socketClient?.handleDirectAdminActions(announceAdminActions);
         mqttClient?.subToTopic(sessionId)
         mqttClient?.onTopicPublished(sessionId, appendSessionEvents);
-        socketClient?.handleDirectAdminActions(announceAdminActions);
     }, [mqttClient, socketClient]);
 
 
