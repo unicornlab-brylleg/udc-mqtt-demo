@@ -19,10 +19,10 @@ const USERS_CSV_PATH = path.resolve(__dirname, "../", "data", "users.csv");
  * @type {SCServer}
  */
 module.exports = class SCServer {
-  redisClient;
+  // redisClient;
   mqttHandler;
   constructor(port, server_name) {
-    this.redisClient = new redisClient();
+    // this.redisClient = new redisClient();
     this.mqttHandler = new mqttClient();
     //create http & socket cluster server
     this.http_server = http.createServer();
@@ -204,10 +204,10 @@ module.exports = class SCServer {
             action.block(new Error("socket not authenticated"));
             continue;
           }
-          this.redisClient.addUserToSessionList(
-            action.channel,
-            action.socket.authToken.username
-          );
+          // this.redisClient.addUserToSessionList(
+          //   action.channel,
+          //   action.socket.authToken.username
+          // );
           // console.log("SUBSCRIBE");
           // console.log(action.channel);
           // console.log(action.socket.authToken);

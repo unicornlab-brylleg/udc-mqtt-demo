@@ -1,0 +1,4 @@
+{
+    "receiveKickAction": "./Events/receiveKickAction",
+    "receiveMuteAction": "./Events/receiveMuteAction"
+}

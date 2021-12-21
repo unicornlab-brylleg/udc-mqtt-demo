@@ -9,6 +9,7 @@ import Login from './Pages/Login/Login';
 import { AuthCtx } from "./Contexts/authContext"
 import Session from './Pages/Session/Session';
 import './global.css'
+import { registerEvents} from './Handlers/registerEvents'
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
 
 
   useEffect(() => {
+    registerEvents()
     let fetchedUser = localStorage.getItem('user');
     if (fetchedUser) {
       setUser(JSON.parse(fetchedUser));

@@ -38,6 +38,7 @@ export default function AdminView({ socketClient }: AdminProps) {
             AdminAction: AdminMqttActions.KickEveryone,
             message: 'Admin Kicked All'
         })
+        window.dispatchEvent(new Event('receiveKickAction'));
     }
 
 
