@@ -14,30 +14,44 @@ export default function Admin() {
     useState<socketClusterClient.AGClientSocket>();
 
   useEffect(() => {
-    let socket = socketClusterClient.create({
-      hostname: "localhost",
-      port: 8000,
-    });
-    setSocketClient(socket);
-
-    try {
-      // Invoke a custom 'login' procedure (RPC) on our server socket
-      // then wait for the socket to be authenticated.
-      socket.invoke("login", {
-        token: "mycustomtoken",
+    const urlParams = window.location.search;
+    const token = new URLSearchParams(urlParams).get("token");
+    console.log("Authenticating with token: ", token);
+    (async () => {
+      let socket = socketClusterClient.create({
+        hostname: "localhost",
+        port: 8000,
       });
-      setIsConnected(true);
-    } catch (error) {
-      // showLoginError(err);
-      // return;
-      console.log("error - ", error);
-    }
+      setSocketClient(socket);
+
+      try {
+        // Invoke a custom 'login' procedure (RPC) on our server socket
+        // then wait for the socket to be authenticated.
+        const rpcResult = await Promise.all([
+          socket.invoke("login", {
+            token: token,
+          }),
+          socket.listener("authenticate").once(),
+        ]);
+        const authToken = rpcResult[1];
+        if (authToken) {
+          console.log(
+            "Client authenticated with token: ",
+            authToken.signedAuthToken
+          );
+          setIsConnected(true);
+        }
+      } catch (error) {
+        // showLoginError(err);
+        // return;
+        console.log("Client authentication error: ", error);
+      }
+    })();
   }, []);
 
   useEffect(() => {
     (async () => {
       if (socketClient) {
-        console.log("Listening to incoming messages from ", socketClient);
         // Set up a loop to handle remote transmitted events.
         for await (let data of socketClient.receiver("command")) {
           console.log("Transmitted data received by end-user: ", data);
