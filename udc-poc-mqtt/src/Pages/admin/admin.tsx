@@ -10,12 +10,15 @@ export default function Admin() {
   }
 
   const [isConnected, setIsConnected] = useState(false);
+  const [socketClient, setSocketClient] =
+    useState<socketClusterClient.AGClientSocket>();
 
   useEffect(() => {
     let socket = socketClusterClient.create({
       hostname: "localhost",
       port: 8000,
     });
+    setSocketClient(socket);
 
     try {
       // Invoke a custom 'login' procedure (RPC) on our server socket
@@ -30,6 +33,40 @@ export default function Admin() {
       console.log("error - ", error);
     }
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (socketClient) {
+        console.log("Listening to incoming messages from ", socketClient);
+        // Set up a loop to handle remote transmitted events.
+        for await (let data of socketClient.receiver("command")) {
+          console.log("Transmitted data received by end-user: ", data);
+        }
+
+        // * Below works
+        // for await (let request of socketClient.procedure("command")) {
+        //   if (request.data && request.data.bad) {
+        //     let badCustomError = new Error(
+        //       "Server failed to execute the procedure"
+        //     );
+        //     badCustomError.name = "BadCustomError";
+        //     request.error(badCustomError);
+        //     continue;
+        //   }
+        //   console.log("Command received by end-user: ", request.data);
+        //   request.end("Success");
+        // }
+        // // @ts-ignore
+        // for await (let data of socketClient.listener("raw")) {
+        //   console.log("Raw data received by end-user: ", data);
+        // }
+        // // @ts-ignore
+        // for await (let data of socketClient.receiver("command")) {
+        //   console.log("Transmitted data received by end-user: ", data);
+        // }
+      }
+    })();
+  }, [socketClient]);
 
   function kickAll() {
     // client.publish("UDC-013", "Admin kicked All");
