@@ -54,30 +54,16 @@ export default function Admin() {
       if (socketClient) {
         // Set up a loop to handle remote transmitted events.
         for await (let data of socketClient.receiver("command")) {
-          console.log("Transmitted data received by end-user: ", data);
+          console.log("Command received: ", data);
         }
-
-        // * Below works
-        // for await (let request of socketClient.procedure("command")) {
-        //   if (request.data && request.data.bad) {
-        //     let badCustomError = new Error(
-        //       "Server failed to execute the procedure"
-        //     );
-        //     badCustomError.name = "BadCustomError";
-        //     request.error(badCustomError);
-        //     continue;
-        //   }
-        //   console.log("Command received by end-user: ", request.data);
-        //   request.end("Success");
-        // }
-        // // @ts-ignore
-        // for await (let data of socketClient.listener("raw")) {
-        //   console.log("Raw data received by end-user: ", data);
-        // }
-        // // @ts-ignore
-        // for await (let data of socketClient.receiver("command")) {
-        //   console.log("Transmitted data received by end-user: ", data);
-        // }
+      }
+    })();
+    (async () => {
+      if (socketClient) {
+        // Set up a loop to handle remote transmitted events.
+        for await (let data of socketClient.receiver("presence")) {
+          console.log("User update received: ", data);
+        }
       }
     })();
   }, [socketClient]);
